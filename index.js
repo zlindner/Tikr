@@ -1,8 +1,105 @@
-$(document).ready(function () {
+'use strict'
+
+// base IEX api url
+const IEX = 'https://api.iextrading.com/1.0';
+
+// rgba colour representing positive
+const POSITIVE = 'rgba(25, 190, 135, 255)';
+
+// rgba colour representing negative
+const NEGATIVE = 'rgba(247, 33, 33, 255)';
+
+// js enum for determining months from index
+const MONTHS = Object.freeze({
+    0: 'Jan',
+    1: 'Feb',
+    2: 'Mar',
+    3: 'Apr',
+    4: 'May',
+    5: 'Jun',
+    6: 'Jul',
+    7: 'Aug',
+    8: 'Sep',
+    9: 'Oct',
+    10: 'Nov',
+    11: 'Dec'
+});
+
+$(document).ready(function() {
+    let symbol = 'AAPL';
+    
+    getPrice(symbol);
+    getChange(symbol);
+    getStats(symbol);
+
+    let chart = initChart(symbol);
+
+    $(document).on('click', '.time-period-button:not(.selected)', function() {
+        updateChart(chart, symbol, $(this).text());
+
+        $('.time-period-button.selected').removeClass('selected');
+        $(this).addClass('selected');
+    });
+});
+
+function getPrice(symbol) {
+    const URL = IEX + '/stock/' + symbol + '/price';
+
+    $.get(URL, function(price) {
+        $('#stockPrice').text(price.toFixed(2)); 
+    });
+}
+
+function getStats(symbol) {
+    const URL = IEX + '/stock/' + symbol + '/stats';
+
+    $.getJSON(URL, function(json) {
+        $('#stockName').text(json.companyName);
+        $('#stockSymbol').text('(' + symbol + ')');
+    });
+}
+
+function getChange(symbol) {
+    const URL = IEX + '/stock/' + symbol + '/previous';
+
+    $.getJSON(URL, function(json) {
+        let change = (json.change).toFixed(2);
+        let percent = (json.changePercent).toFixed(2);
+
+        if (change >= 0) {
+            change = '+' + change;
+            percent = '+' + percent;
+
+            $('#stockDiff').addClass('positive');
+        } else {
+            $('#stockDiff').addClass('negative');
+        }
+
+        $('#stockDiff').text(change + ' (' + percent + '%)');
+    });
+}
+
+function initChart(symbol) {
+    let chartData = getChartData(symbol, '1D');
+
+    //TODO change this depending on change sign
+    let colour = POSITIVE;
+
     let chart = new Chart($('#stockChart'), {
         type: 'line',
         data: {
-            datasets: []
+            labels: chartData.labels,
+            datasets: [{
+                data: chartData.data,
+                fill: false,
+                lineTension: 0,
+                borderColor: colour,
+                borderWidth: 1.5,
+                pointBorderColor: 'rgba(0, 0, 0, 0)',
+                pointBackgroundColor: 'rgba(0, 0, 0, 0)',
+                pointHoverBackgroundColor: colour,
+                pointHoverBorderColor: colour
+            }]
         },
         options: {
             scales: {
@@ -20,7 +117,69 @@ $(document).ready(function () {
                         color: 'transparent'
                     }
                 }]
-            }
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                displayColors: false,
+                callbacks: {
+                    label: function(items, data) {
+                        return symbol + ': ' + items.yLabel;
+                    }
+                }
+            },
+            animation: false,
+            maintainAspectRatio: false
         }
     });
-});
+
+    return chart;
+}
+
+//TODO asynchronous
+function getChartData(symbol, period) {
+    const URL = IEX + '/stock/' + symbol + '/chart/' + period;
+
+    let chartData = {
+        labels: [],
+        data: []
+    };
+
+    $.ajax({
+        type: 'get',
+        url: URL,
+        dataType: 'json',
+        async: false,
+        success: function(json) {
+            let labels = [];
+            let data = [];
+
+            //TODO possibly add year for periods >= 1y
+            json.forEach(function(obj) {
+                let date = new Date(obj.date);
+                let label = MONTHS[date.getMonth()] + ' ' + date.getDate();
+
+                labels.push(label);
+                data.push(obj.open);
+            });
+
+            chartData.labels = labels;
+            chartData.data = data;
+        },
+        fail: function(error) {
+            console.log(error);
+        }
+    });
+
+    return chartData;
+}
+
+function updateChart(chart, symbol, period) {
+    let chartData = getChartData(symbol, period);
+
+    chart.data.labels = chartData.labels;
+    chart.data.datasets[0].data = chartData.data;
+    
+    chart.update();
+}

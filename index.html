@@ -13,19 +13,19 @@
 <body>
     <div class="wrapper">
         <div class="stock-header">
-            <h1 class="stock-name">Advanced Micro Devices Inc.</h1>
-            <h1 class="stock-symbol">(AMD)</h1>
-            <br>
-            <h1 class="stock-price">15.31</h1>
-            <h1 class="stock-price-diff">+0.085 (+0.56%)</h1>
+            <h1 class="stock-name" id="stockName">...</h1>
+            <h1 class="stock-symbol" id="stockSymbol"></h1>
+            <br><br>
+            <h1 class="stock-price" id="stockPrice">...</h1>
+            <h1 class="stock-price-diff" id="stockDiff"></h1>
         </div>
 
         <div class="stock-chart">
-            <canvas width="600" height="275" id="stockChart"></canvas>
+            <canvas id="stockChart"></canvas>
         </div>
 
         <div class="time-period">
-            <button class="time-period-button">1D</button>
+            <button class="time-period-button selected">1D</button>
             <button class="time-period-button">1M</button>
             <button class="time-period-button">3M</button>
             <button class="time-period-button">6M</button>

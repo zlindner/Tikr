@@ -10,7 +10,6 @@ h1 {
 
 .wrapper {
     width: 70%;
-    height: 100%;
     margin: auto;
     padding-top: 25px;
     padding-left: 50px;
@@ -43,12 +42,12 @@ h1 {
 .stock-price-diff {
     font-size: 16px;
     font-weight: 400;
-    color: #19be87;
     display: inline;
 }
 
 .stock-chart {
     height: 400px;
+    margin-bottom: 50px;
 }
 
 .time-period {
@@ -73,8 +72,16 @@ h1 {
     border-bottom: 2px solid black;
 }
 
-.time-period-button:focus {
+.selected{
     outline: none;
     border-bottom: 2px solid black;
     font-weight: 700;
+}
+
+.positive {
+    color: #19be87;
+}
+
+.negative {
+    color: #f72121;
 }
