@@ -1,5 +1,11 @@
 'use strict'
 
+/* TODO:
+ * 
+ * 1D stock charts need fixing
+ * 
+ */
+
 // base IEX api url
 const IEX = 'https://api.iextrading.com/1.0';
 
@@ -8,6 +14,9 @@ const POSITIVE = 'rgba(25, 190, 135, 255)';
 
 // rgba colour representing negative
 const NEGATIVE = 'rgba(247, 33, 33, 255)';
+
+// rgba colour representing zero
+const ZERO = 'rgba(34, 34, 34, 255)'
 
 // js enum for determining months from index
 const MONTHS = Object.freeze({
@@ -63,19 +72,28 @@ function getChange(symbol) {
     const URL = IEX + '/stock/' + symbol + '/previous';
 
     $.getJSON(URL, function(json) {
-        let change = (json.change).toFixed(2);
-        let percent = (json.changePercent).toFixed(2);
+        let prevClose = json.close;
 
-        if (change >= 0) {
-            change = '+' + change;
-            percent = '+' + percent;
+        const URL2 = IEX + '/stock/' + symbol + '/price';
+        
+        $.get(URL2, function(price) {
+            let diff = price - prevClose;
+            let diffPercent = diff / prevClose * 100;
 
-            $('#stockDiff').addClass('positive');
-        } else {
-            $('#stockDiff').addClass('negative');
-        }
+            if (diff > 0) {
+                diff = '+' + diff.toFixed(2);
+                diffPercent = '+' + diffPercent.toFixed(2);
 
-        $('#stockDiff').text(change + ' (' + percent + '%)');
+                $('#stockDiff').addClass('positive');
+            } else if (diff < 0) {
+                diff = '-' + diff.toFixed(2);
+                diffPercent = '-' + diffPercent.toFixed(2);
+
+                $('#stockDiff').addClass('negative');
+            }
+
+            $('#stockDiff').text(diff + ' (' + diffPercent + '%)');
+        });
     });
 }
 
