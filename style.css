@@ -2,6 +2,7 @@ html, body {
     width: 100%;
     height: 100%;
     background-color: #fafafa;
+    margin: 0;
 }
 
 h1 {
@@ -16,6 +17,75 @@ h1 {
     padding-left: 50px;
     padding-right: 50px;
     background-color: #ffffff;
+}
+
+.search-bar {
+    width: 100%;
+    height: 50px;
+    background-color: #ffffff;
+    padding-top: 10px;
+}
+
+.search-bar>h1 {
+    display: inline;
+    margin-left: 10%;
+}
+
+.search {
+    width: 50%;
+    height: 30px;
+    display: block;
+    margin: 0 auto;
+    margin-top: -35px;
+    transition: all .1s ease;
+    border-radius: 0.125rem;
+    border: 1px solid rgba(204,204,204,.25);
+    background: transparent;
+}
+
+.search:hover {
+    box-shadow: 0px 1px 10px 2px rgba(204,204,204,.25);
+    transition: all .1s ease;
+    border: 1px solid rgba(204,204,204, 0);
+}
+
+.search:focus {
+    outline: none;
+}
+
+.ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.ui-menu {
+    background-color: white;
+    width: 50%;
+    position: relative;
+    box-shadow: 0px 1px 10px 2px rgba(204,204,204,.25);
+}
+
+.ui-menu .ui-menu-item {
+    height: 40px;
+    line-height: 40px;
+    padding-left: 10px;
+}
+
+.ui-menu .ui-menu-item:hover {
+    background-color: #f2f2f2;
+}
+
+ul.ui-autocomplete {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.ui-helper-hidden-accessible { 
+    display: none;
 }
 
 .stock-header {
