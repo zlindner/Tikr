@@ -11,6 +11,13 @@ $(document).ready(function() {
         $('.form-create-account').show();
     });
 
+    $('.form-login input[name="forgot"]').click(function() {
+        $('.form-login').hide();
+
+        $('.wrapper-form').css('height', '280');
+        $('.form-forgot-password').show();
+    });
+
     $('.form-create-account input[name="create"]').click(function(e) {
         e.preventDefault();
         createAccount();
@@ -18,6 +25,18 @@ $(document).ready(function() {
 
     $('.form-create-account input[name="login"]').click(function() {
         $('.form-create-account').hide();
+
+        $('.wrapper-form').css('height', '320px');
+        $('.form-login').show();
+    });
+
+    $('.form-forgot-password input[name="reset"]').click(function(e) {
+        e.preventDefault();
+        resetPassword();
+    });
+
+    $('.form-forgot-password input[name="login"]').click(function() {
+        $('.form-forgot-password').hide();
 
         $('.wrapper-form').css('height', '320px');
         $('.form-login').show();
@@ -37,4 +56,10 @@ function createAccount() {
     let password2 = $('.form-create-account input[name="password2"').val();
 
     console.log('Email: ' + email + '\nPassword: ' + password + '\nPassword2: '+ password2);
+}
+
+function resetPassword() {
+    let email = $('.form-forgot-password input[name="email"').val();
+
+    console.log('Email: ' + email);
 }

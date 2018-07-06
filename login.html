@@ -11,13 +11,14 @@
 
 <body>
     <div class="wrapper-form">
-        <h1>Tikr</h1>
+        <a href="index.html" tabindex="-1">Tikr</a>
 
         <form class="form-login">
             <input type="text" name="username" placeholder="Username" class="form-input">
             <input type="text" name="password" placeholder="Password" class="form-input form-password">
             <input type="submit" name="login" value="Login" class="form-submit">
-            <input type="button" name="create" value="Create an account" class="form-textbutton">
+            <input type="button" name="create" value="Create an account" class="form-textbutton" tabindex="-1">
+            <input type="button" name="forgot" value="Fogot your password?" class="form-textbutton" tabindex="-1">
         </form>
 
         <form class="form-create-account" hidden>
@@ -25,7 +26,13 @@
             <input type="text" name="password" placeholder="Password" class="form-input form-password" >
             <input type="text" name="password2" placeholder="Confirm Password" class="form-input form-password">
             <input type="submit" name="create" value="Create Account" class="form-submit">
-            <input type="button" name="login" value="Already have an account?" class="form-textbutton">
+            <input type="button" name="login" value="Already have an account?" class="form-textbutton" tabindex="-1">
+        </form>
+
+        <form class="form-forgot-password" hidden>
+            <input type="text" name="email" placeholder="Email" class="form-input">
+            <input type="submit" name="reset" value="Reset Password" class="form-submit">
+            <input type="button" name="login" value="Remember yet?" class="form-textbutton" tabindex="-1">
         </form>
     </div>
 
