@@ -35,8 +35,8 @@ const MONTHS = Object.freeze({
 });
 
 $(document).ready(function() {
-    let symbols = getSymbols();
-    let chart = initChart();
+    //let symbols = getSymbols();
+    //let chart = initChart();
 
     //TODO: move getting symbols to server, might not have to limit results then
     $('#search').autocomplete({
