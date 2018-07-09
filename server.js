@@ -2,7 +2,7 @@
 
 /* TODO:
  * implement connection pooling
- * add connection.release()
+ *     add connection.release()
  * email verification
  *     set verified column to true when email is verified
  */
@@ -11,10 +11,12 @@ let express = require('express');
 let http = require('http');
 let mysql = require('mysql');
 let bcrypt = require('bcrypt');
+let mailer = require('nodemailer');
 
 let app = express();
 app.use(express.static('.'));
 
+// server config file
 let config = require('./config');
 
 let db = mysql.createConnection({
@@ -28,6 +30,15 @@ db.connect(function(err) {
     if (err) throw err;
     
     console.log('Connected to db');
+});
+
+// smtp transporter
+let transporter = mailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: 'dezineing@gmail.com',
+        pass: 'zulumikelima'
+    }
 });
 
 app.get('/login', function(req, res) {
@@ -71,16 +82,63 @@ app.get('/createAccount', function(req, res) {
         if (result.length == 0) {
             bcrypt.hash(password, 10, function(err, hash) {
                 if (err) throw err;
+
+                let id = Math.floor(Math.random() * 90000000) + 10000000;
+
+                console.log(id);
         
-                db.query('INSERT INTO account (email, password) VALUES("' + email + '", "' + hash + '")', function(err, result) {
+                db.query('INSERT INTO account (email, password, id) VALUES("' + email + '", "' + hash + '", "' + id + '")', function(err, result) {
                     if (err) throw err;
 
                     // email verification
+                    sendEmail(email, id, req.get('host'));
                 });
             });
         } else {
             // account already exists with that email
             return res.json({status: 'fail'});
+        }
+    });
+});
+
+function sendEmail(email, id, host) {
+    let link = 'http://' + host + '/verify?id=' + id;
+
+    let options = {
+        to: email,
+        subject: 'Tikr account verification',
+        html: 'Hello,<br>Please click on the link to verify your email.<br><a href="' + link + '">Verify</a>'
+    };
+
+    transporter.sendMail(options, function(err, res) {
+        if (err) throw err;
+
+        console.log('sent');
+    });
+}
+
+app.get('/verify', function(req, res) {
+    let linkID = req.query.id;
+
+    db.query('SELECT * FROM account WHERE id="' + linkID + '";', function(err, result) {
+        if (err) throw err;
+
+        if (result.length == 0) {
+            return res.end('<h1>Bad request</h1>');
+        }
+
+        let userID = result[0].id;
+
+        if (userID == linkID) {
+            let email = result[0].email;
+
+            db.query('UPDATE account SET verified="1", id=NULL WHERE email="' + email + '";', function(err, result) {
+                if (err) throw err;
+
+                return res.end('<h1>Email has successfully been verified</h1>');
+            });
+        } else {
+            return res.end('<h1>Bad request</h1>');
         }
     });
 });
