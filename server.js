@@ -15,11 +15,13 @@ let bcrypt = require('bcrypt');
 let app = express();
 app.use(express.static('.'));
 
+let config = require('./config');
+
 let db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'no no no',
-    database: 'tikr'
+    host: config.db.host,
+    user: config.db.username,
+    password: config.db.password,
+    database: config.db.database
 });
 
 db.connect(function(err) {
