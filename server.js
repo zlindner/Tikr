@@ -5,6 +5,7 @@
  *     add connection.release()
  * email verification
  *     set verified column to true when email is verified
+ * uri encoding for verification link???
  */
 
 let express = require('express');

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Tikr</title>
+    <meta charset="utf8">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div class="search-bar">
+        <h1>Tikr</h1>
+        <input type="text" placeholder="Search stocks" class="search" id="search" autocomplete="off">
+        <a href="login.html" class="login">Login</a>
+    </div>
+
+    <div class="wrapper">
+        <div class="stock-header">
+            <h1 class="stock-name" id="stockName">...</h1>
+            <h1 class="stock-symbol" id="stockSymbol"></h1>
+            <br><br>
+            <h1 class="stock-price" id="stockPrice">...</h1>
+            <h1 class="stock-price-diff" id="stockDiff"></h1>
+        </div>
+
+        <div class="stock-chart">
+            <canvas id="stockChart"></canvas>
+        </div>
+
+        <div class="time-period">
+            <button class="time-period-button selected">1D</button>
+            <button class="time-period-button">1M</button>
+            <button class="time-period-button">3M</button>
+            <button class="time-period-button">6M</button>
+            <button class="time-period-button">YTD</button>
+            <button class="time-period-button">1Y</button>
+            <button class="time-period-button">2Y</button>
+            <button class="time-period-button">5Y</button>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+
+</html>
