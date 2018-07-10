@@ -6,11 +6,6 @@
  */
 
 /*
- * TODO:
- * add gradient to submit button border
- */
-
-/*
  * global
  */
 
@@ -126,6 +121,8 @@ form {
     -webkit-text-security: disc;
 }
 
+/* TODO: make button border gradient */
+
 .form-submit {
     width: 400px;
     height: 40px;
@@ -173,13 +170,13 @@ form {
  .wrapper-stocks {
      width: 60%;
      height: 1000px;
-     margin-top: 100px;
+     top: 80px;
  }
 
  .wrapper-search {
      width: 60%;
      height: 100px;
-     top: 10%;
+     top: 40px;
  }
 
  .wrapper-search>input[type="text"] {
@@ -187,4 +184,44 @@ form {
     height: 40px;
     display: block;
     margin: auto;
+    margin-top: 25px;
+    border-radius: .125rem;
+    border: 1px solid #dfdfdf;
+    padding-left: 10px;
+    font-size: 18px;
  }
+
+ .wrapper-search>input[type="text"]:hover {
+    box-shadow: 0px 1px 10px 2px rgba(204, 204, 204, .25);
+ }
+
+ .wrapper-search>input[type="text"]:focus {
+    box-shadow: 0px 1px 10px 2px rgba(204, 204, 204, .25);
+    outline: none;
+}
+
+/* TODO: find way to add box-shadow to ui-menu without top shadow when opens */
+
+.ui-menu {
+    max-height: 200px;
+    background-color: #ffffff;
+    border-radius: .125rem;
+    border: 1px solid #dfdfdf;
+    border-top: none;
+    overflow-y: auto;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    list-style: none;
+    padding: 0;
+    font-weight: 500;
+}
+
+.ui-menu-item {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+
+.ui-menu-item:hover {
+    background-color: #fafafa;
+}

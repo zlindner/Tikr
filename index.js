@@ -1,13 +1,10 @@
 'use strict'
 
-/* TODO:
- * 
- * 1D stock charts need fixing
- * 
- */
-
 $(document).ready(function() {
-    // sidebar links
+    /*
+     * sidebar
+     */
+
     $(document).on('click', '.sidebar>ul>li>a', function() {
         let id = $(this).attr('id');
 
@@ -71,7 +68,44 @@ $(document).ready(function() {
         $('.form-error').hide();
         $('.form-login').show();
     });
+
+    /*
+     * stocks
+     */
+
+    jQuery.ui.autocomplete.prototype._resizeMenu = function() {
+        var ul = this.menu.element;
+        ul.outerWidth(this.element.outerWidth() - 1);
+      }
+
+    $('#stockInput').autocomplete({
+        source: '/search',
+        select: function(event, ui) {
+            $('#stockInput').val('');
+
+            //TODO: console.log(ui.item.value);
+
+            return false;
+        },
+        open: function(event, ui) {
+            $('.wrapper-search>input[type="text"]').css('border-bottom', 'none');
+            $('.wrapper-search>input[type="text"]').css('border-bottom-left-radius', '0');
+            $('.wrapper-search>input[type="text"]').css('border-bottom-right-radius', '0');
+        },
+        close: function(event, ui) {
+            $('.wrapper-search>input[type="text"]').css('border-bottom', '1px solid #dfdfdf');
+            $('.wrapper-search>input[type="text"]').css('border-radius', '.125rem');
+        },
+        minLength: 1,
+        position: {
+            my: 'left+0 top-1'
+        }
+    });
 });
+
+/*
+ * login
+ */ 
 
 function login() {
     let email = $('.form-login input[name="email"]').val();
@@ -159,6 +193,10 @@ function validateEmail(email) {
     let regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return regex.test(email);
 }
+
+/*
+ * stocks
+ */ 
 
  /*
 // base IEX api url

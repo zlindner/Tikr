@@ -15,7 +15,7 @@
 <body>
     <div class="sidebar">
         <div class="wrapper-logo">
-            <a href="index.html">
+            <a href="index.html" tabindex="-1">
                 <img src="assets/tikr.png" alt="Tikr" width="50" height="50">
             </a>
         </div>
@@ -64,7 +64,7 @@
     </div>
 
     <div class="wrapper-search wrapper">
-        <input type="text" placeholder="Search stocks" autocomplete="off">
+        <input type="text" id="stockInput" placeholder="Search stocks by symbol or name" autocomplete="off">
     </div>
 
     <div class="wrapper-stocks wrapper">

@@ -3,8 +3,6 @@
 /* TODO:
  * implement connection pooling
  *     add connection.release()
- * email verification
- *     set verified column to true when email is verified
  * uri encoding for verification link???
  */
 
@@ -13,6 +11,7 @@ let http = require('http');
 let mysql = require('mysql');
 let bcrypt = require('bcrypt');
 let mailer = require('nodemailer');
+let request = require('request');
 
 let app = express();
 app.use(express.static('.'));
@@ -35,10 +34,23 @@ db.connect(function(err) {
 
 // smtp transporter
 let transporter = mailer.createTransport({
-    service: 'Gmail',
+    service: config.mailer.service,
     auth: {
-        user: 'dezineing@gmail.com',
-        pass: 'zulumikelima'
+        user: config.mailer.username,
+        pass: config.mailer.password
+    }
+});
+
+let stocks = [];
+
+request({
+    url: 'https://api.iextrading.com/1.0/ref-data/symbols',
+    json: true
+}, function(err, res, json) {
+    if (err) throw err;
+
+    if (res.statusCode == 200) {    
+        stocks = json;
     }
 });
 
@@ -142,6 +154,30 @@ app.get('/verify', function(req, res) {
             return res.end('<h1>Bad request</h1>');
         }
     });
+});
+
+app.get('/search', function(req, res) {
+    let term = req.query.term;
+    let filtered = [];
+    const LIMIT = 25;
+
+    stocks.filter(function(stock) {
+        return ~stock.symbol.toLowerCase().indexOf(term) || ~stock.name.toLowerCase().indexOf(term);
+    }).slice(0, LIMIT).forEach(function(stock) {
+        if (stock.name.length > 0) {
+            filtered.push({
+                label: stock.symbol + ' - ' + stock.name,
+                value: stock.symbol
+            });
+        } else {
+            filtered.push({
+                label: stock.symbol,
+                value: stock.symbol
+            });
+        }
+    });
+
+    res.send(filtered);
 });
 
 let server = http.createServer(app);
