@@ -1,5 +1,6 @@
-# Mac
+# Misc
 .DS_Store
+package-lock.json
 
 # Config
 config.js
