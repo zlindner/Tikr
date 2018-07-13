@@ -19,21 +19,17 @@ app.use(express.static('.'));
 // server config file
 let config = require('./config');
 
-console.log('Connecting to database...');
+console.log('Initiailizing database connection pool...');
 
-let db = mysql.createConnection({
+let pool = mysql.createPool({
     host: config.db.host,
     user: config.db.username,
     password: config.db.password,
-    database: config.db.database
+    database: config.db.database,
+    connectionLimit: config.db.connectionLimit
 });
 
-db.connect(function(err) {
-    if (err) throw err;
-    
-    console.log('Established connection to database');
-});
-
+console.log('Connection pool successfully initialized');
 console.log('Initializing mailer...');
 
 // smtp transporter
@@ -68,7 +64,7 @@ app.get('/login', function(req, res) {
     let password = req.query.password;
 
     // casts binary hash to string
-    db.query('SELECT CAST(password as CHAR) FROM account WHERE email="' + email + '";', function(err, result) {
+    pool.query('SELECT CAST(password as CHAR) FROM account WHERE email="' + email + '";', function(err, result) {
         if (err) throw err;
 
         if (result.length == 0) {
@@ -97,7 +93,7 @@ app.get('/createAccount', function(req, res) {
     let email = req.query.email;
     let password = req.query.password;
 
-    db.query('SELECT * FROM account WHERE email="' + email + '";', function(err, result) {
+    pool.query('SELECT * FROM account WHERE email="' + email + '";', function(err, result) {
         if (err) throw err;
 
         // account doesn't already exist with that email
@@ -142,7 +138,7 @@ function sendEmail(email, id, host) {
 app.get('/verify', function(req, res) {
     let linkID = req.query.id;
 
-    db.query('SELECT * FROM account WHERE id="' + linkID + '";', function(err, result) {
+    pool.query('SELECT * FROM account WHERE id="' + linkID + '";', function(err, result) {
         if (err) throw err;
 
         if (result.length == 0) {
