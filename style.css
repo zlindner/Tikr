@@ -245,7 +245,6 @@ form {
     font-size: 32px;
     margin-top: 10px;
     margin-left: 40px;
-    transition: all 0.15s ease-in-out;
 }
 
 #priceDiff {
@@ -254,7 +253,7 @@ form {
 
 .wrapper-chart {
     width: 90%;
-    height: 500px;
+    height: 400px;
     margin: auto;
     position: relative;
 }
@@ -263,4 +262,14 @@ form {
     display: block;
     margin: auto;
     padding: 0;
+}
+
+.wrapper-periods {
+    display: flex;
+    justify-content: center;
+}
+
+.wrapper-periods>button {
+    width: 50px;
+    height: 20px;
 }

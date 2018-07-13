@@ -1,11 +1,5 @@
 'use strict'
 
-/* TODO:
- * implement connection pooling
- *     add connection.release()
- * uri encoding for verification link???
- */
-
 let express = require('express');
 let http = require('http');
 let mysql = require('mysql');
@@ -183,6 +177,17 @@ app.get('/search', function(req, res) {
     });
 
     res.send(filtered);
+});
+
+// graceful shutdown
+process.on('SIGINT', function() {
+    console.log('\nShutting down server...');
+
+    pool.end(function(err) {
+        if (err) throw err;
+
+        process.exit();
+    });
 });
 
 let server = http.createServer(app);

@@ -27,6 +27,8 @@ $(document).ready(function() {
         login();
     }); 
 
+    //TODO: this could probably be cleaned up
+
     $('.form-login input[name="create"]').click(function() {
         $('.form-login').hide();
 
@@ -74,8 +76,7 @@ $(document).ready(function() {
      */
 
     jQuery.ui.autocomplete.prototype._resizeMenu = function() {
-        var ul = this.menu.element;
-        ul.outerWidth(this.element.outerWidth() - 1);
+        this.menu.element.outerWidth(this.element.outerWidth() - 1);
     }
 
     let chart = initChart();
@@ -233,6 +234,12 @@ function loadStock(symbol, chart) {
     });
 
     loadChart(symbol, '1M', chart);
+
+    chart.options.tooltips.callbacks = {
+        label: function(items) {
+            return symbol + ': ' + items.yLabel;
+        }
+    }
 }
 
 function getPrice(symbol, prev, update, chart) {
@@ -349,20 +356,3 @@ function loadChart(symbol, period, chart) {
         //TODO: update
     }
 }
-
- /*
-function updateChart(chart, symbol, period) {
-    let chartData = getChartData(symbol, period);
-
-    chart.data.labels = chartData.labels;
-    chart.data.datasets[0].data = chartData.data;
-
-    chart.options.tooltips.callbacks = {
-        label: function(items, data) {
-            return symbol + ': ' + items.yLabel;
-        }
-    }
-    
-    chart.update();
-}
-*/
