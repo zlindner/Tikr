@@ -76,14 +76,16 @@ $(document).ready(function() {
     jQuery.ui.autocomplete.prototype._resizeMenu = function() {
         var ul = this.menu.element;
         ul.outerWidth(this.element.outerWidth() - 1);
-      }
+    }
+
+    let chart = initChart();
 
     $('#stockInput').autocomplete({
         source: '/search',
         select: function(event, ui) {
             $('#stockInput').val('');
 
-            //TODO: console.log(ui.item.value);
+            loadStock(ui.item.value, chart);
 
             return false;
         },
@@ -99,6 +101,10 @@ $(document).ready(function() {
         minLength: 1,
         position: {
             my: 'left+0 top-1'
+        },
+        messages: {
+            noResults: '',
+            results: function() {}
         }
     });
 });
@@ -198,9 +204,125 @@ function validateEmail(email) {
  * stocks
  */ 
 
- /*
-// base IEX api url
+ // base IEX api url
 const IEX = 'https://api.iextrading.com/1.0';
+
+function loadStock(symbol, chart) {
+    $.getJSON(IEX + '/stock/' + symbol + '/stats', function(stats) {
+        $('#stockName').text(stats.companyName);
+        $('#stockSymbol').text('(' + stats.symbol + ')');
+    });
+
+    $.getJSON(IEX + '/stock/' + symbol + '/previous', function(prev) {
+        getPrice(symbol, prev, false);
+
+        // update price every minute
+        setInterval(function() {
+            getPrice(symbol, prev, true)
+        }, 60000);
+    });
+
+    loadChart(symbol, '1D', chart);
+}
+
+function getPrice(symbol, prev, update) {
+    $.get(IEX + '/stock/' + symbol + '/price', function(price) {
+        // dont animate on first call
+        if (update) {
+            let current = parseFloat($('#stockPrice').text()).toFixed(2);
+
+            if (current != price.toFixed(2)) {
+                $('#stockPrice').fadeOut(200);
+                $('#stockPrice').fadeIn(400);
+            }
+        } 
+        
+        $('#stockPrice').text(price.toFixed(2));
+
+        let diff = price - prev.close;
+        let diffPercent = diff / prev.close * 100;
+
+        if (diff > 0) {
+            diff = '+' + diff.toFixed(2);
+            diffPercent = '+' + diffPercent.toFixed(2);
+
+            $('#priceDiff').css('color', '#19be87');
+        } else if (diff < 0) {
+            diff = '-' + diff.toFixed(2);
+            diffPercent = '-' + diffPercent.toFixed(2);
+
+            $('#priceDiff').css('color', '#f72121');
+        }
+
+        $('#priceDiff').text(diff + ' (' + diffPercent + '%)');
+    });
+}
+
+function initChart() {
+    let chart = new Chart($('#stockChart'), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                data: [],
+                fill: false,
+                lineTension: 0,
+                //TODO: borderColor: colour,
+                borderWidth: 1.5,
+                pointBorderColor: 'rgba(0, 0, 0, 0)',
+                pointBackgroundColor: 'rgba(0, 0, 0, 0)',
+                //TODO: pointHoverBackgroundColor: colour,
+                //TODO: pointHoverBorderColor: colour
+            }]
+        },
+        options: {
+            scales: {
+                xAxes: [{
+                    display: false,
+                    gridLines: {
+                        display: false
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        display: false
+                    },
+                    gridLines: {
+                        color: 'transparent'
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                displayColors: false
+            },
+            animation: false,
+            maintainAspectRatio: false
+        }
+    });
+
+    return chart;
+}
+
+function loadChart(symbol, period, chart) {
+    $.getJSON(IEX + '/stock/' + symbol + '/chart/' + period, function(json) {
+        let labels = [];
+        let data = [];
+
+        json.forEach(function(obj) {
+            labels.push(obj.label);
+            data.push(obj.open);
+        });
+
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.update();
+    });
+}
+
+ /*
 
 // rgba colour representing positive
 const POSITIVE = 'rgba(25, 190, 135, 255)';
@@ -262,135 +384,6 @@ $(document).ready(function() {
         }
     });
 });
-
-//TODO: asynchronous
-function getSymbols() {
-    const URL = IEX + '/ref-data/symbols';
-    let symbols = [];
-
-    $.ajax({
-        type: 'get',
-        url: URL,
-        dataType: 'json',
-        async: false,
-        success: function(json) {
-            json.forEach(function(obj) {
-                let symbol = obj.symbol;
-                let name = obj.name;
-
-                if (name.length > 0) {
-                    symbols.push({
-                        label: symbol + ' - ' + name,
-                        value: symbol
-                    });
-                } else {
-                    symbols.push({
-                        label: symbol,
-                        value: symbol
-                    });
-                }
-            });
-        }
-    });
-
-    return symbols;
-}
-
-function getPrice(symbol) {
-    const URL = IEX + '/stock/' + symbol + '/price';
-
-    $.get(URL, function(price) {
-        $('#stockPrice').text(price.toFixed(2)); 
-    });
-}
-
-function getStats(symbol) {
-    const URL = IEX + '/stock/' + symbol + '/stats';
-
-    $.getJSON(URL, function(json) {
-        $('#stockName').text(json.companyName);
-        $('#stockSymbol').text('(' + symbol + ')');
-    });
-}
-
-function getChange(symbol) {
-    const URL = IEX + '/stock/' + symbol + '/previous';
-
-    $.getJSON(URL, function(json) {
-        let prevClose = json.close;
-
-        const URL2 = IEX + '/stock/' + symbol + '/price';
-        
-        $.get(URL2, function(price) {
-            let diff = price - prevClose;
-            let diffPercent = diff / prevClose * 100;
-
-            if (diff > 0) {
-                diff = '+' + diff.toFixed(2);
-                diffPercent = '+' + diffPercent.toFixed(2);
-
-                $('#stockDiff').addClass('positive');
-            } else if (diff < 0) {
-                diff = '-' + diff.toFixed(2);
-                diffPercent = '-' + diffPercent.toFixed(2);
-
-                $('#stockDiff').addClass('negative');
-            }
-
-            $('#stockDiff').text(diff + ' (' + diffPercent + '%)');
-        });
-    });
-}
-
-function initChart() {
-    //TODO: change this depending on change sign
-    let colour = POSITIVE;
-
-    let chart = new Chart($('#stockChart'), {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                data: [],
-                fill: false,
-                lineTension: 0,
-                borderColor: colour,
-                borderWidth: 1.5,
-                pointBorderColor: 'rgba(0, 0, 0, 0)',
-                pointBackgroundColor: 'rgba(0, 0, 0, 0)',
-                pointHoverBackgroundColor: colour,
-                pointHoverBorderColor: colour
-            }]
-        },
-        options: {
-            scales: {
-                xAxes: [{
-                    display: false,
-                    gridLines: {
-                        display: false
-                    }
-                }],
-                yAxes: [{
-                    ticks: {
-                        display: false
-                    },
-                    gridLines: {
-                        color: 'transparent'
-                    }
-                }]
-            },
-            legend: {
-                display: false
-            },
-            tooltips: {
-                displayColors: false
-            },
-            animation: false,
-            maintainAspectRatio: false
-        }
-    });
-
-    return chart;
 }
 
 //TODO: asynchronous

@@ -167,12 +167,6 @@ form {
  * stocks
  */
 
- .wrapper-stocks {
-     width: 60%;
-     height: 1000px;
-     top: 80px;
- }
-
  .wrapper-search {
      width: 60%;
      height: 100px;
@@ -224,4 +218,49 @@ form {
 
 .ui-menu-item:hover {
     background-color: #fafafa;
+}
+
+.wrapper-stocks {
+    width: 60%;
+    height: 1000px;
+    top: 80px;
+}
+
+.wrapper-stocks>h1 {
+    display: inline-block;
+    font-size: 20px;
+}
+
+#stockName {
+    font-size: 18px;
+    margin-top: 40px;
+    margin-left: 40px;
+}
+
+#stockSymbol {
+    font-weight: 400;
+}
+
+#stockPrice {
+    font-size: 32px;
+    margin-top: 10px;
+    margin-left: 40px;
+    transition: all 0.15s ease-in-out;
+}
+
+#priceDiff {
+    font-weight: 400;
+}
+
+.wrapper-chart {
+    width: 90%;
+    height: 500px;
+    margin: auto;
+    position: relative;
+}
+
+#stockChart {
+    display: block;
+    margin: auto;
+    padding: 0;
 }

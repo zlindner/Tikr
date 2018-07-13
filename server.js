@@ -29,7 +29,7 @@ let db = mysql.createConnection({
 db.connect(function(err) {
     if (err) throw err;
     
-    console.log('Connected to db');
+    console.log('Established connection to database');
 });
 
 // smtp transporter
