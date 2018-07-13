@@ -207,25 +207,35 @@ function validateEmail(email) {
  // base IEX api url
 const IEX = 'https://api.iextrading.com/1.0';
 
+// updates stock price every min
+let priceTimer;
+
+// updates stock chart every min (for 1D only)
+let chartTimer;
+
 function loadStock(symbol, chart) {
+    if (priceTimer) {
+        clearInterval(priceTimer);
+    }
+
     $.getJSON(IEX + '/stock/' + symbol + '/stats', function(stats) {
         $('#stockName').text(stats.companyName);
         $('#stockSymbol').text('(' + stats.symbol + ')');
     });
 
     $.getJSON(IEX + '/stock/' + symbol + '/previous', function(prev) {
-        getPrice(symbol, prev, false);
+        getPrice(symbol, prev, false, chart);
 
         // update price every minute
-        setInterval(function() {
-            getPrice(symbol, prev, true)
+        priceTimer = setInterval(function() {
+            getPrice(symbol, prev, true, chart)
         }, 60000);
     });
 
-    loadChart(symbol, '1D', chart);
+    loadChart(symbol, '1M', chart);
 }
 
-function getPrice(symbol, prev, update) {
+function getPrice(symbol, prev, update, chart) {
     $.get(IEX + '/stock/' + symbol + '/price', function(price) {
         // dont animate on first call
         if (update) {
@@ -239,20 +249,33 @@ function getPrice(symbol, prev, update) {
         
         $('#stockPrice').text(price.toFixed(2));
 
-        let diff = price - prev.close;
-        let diffPercent = diff / prev.close * 100;
+        let diff = (price - prev.close).toFixed(2);
+        let diffPercent = (diff / prev.close * 100).toFixed(2);
 
         if (diff > 0) {
-            diff = '+' + diff.toFixed(2);
-            diffPercent = '+' + diffPercent.toFixed(2);
+            diff = '+' + diff;
+            diffPercent = '+' + diffPercent;
 
             $('#priceDiff').css('color', '#19be87');
-        } else if (diff < 0) {
-            diff = '-' + diff.toFixed(2);
-            diffPercent = '-' + diffPercent.toFixed(2);
 
+            chart.data.datasets[0].borderColor = '#19be87';
+            chart.data.datasets[0].pointHoverBackgroundColor = '#19be87';
+            chart.data.datasets[0].pointHoverBorderColor = '#19be87';
+        } else if (diff < 0) {
             $('#priceDiff').css('color', '#f72121');
+
+            chart.data.datasets[0].borderColor = '#f72121';
+            chart.data.datasets[0].pointHoverBackgroundColor = '#f72121';
+            chart.data.datasets[0].pointHoverBorderColor = '#f72121';
+        } else {
+            $('#priceDiff').css('color', '#222222');
+            
+            chart.data.datasets[0].borderColor = '#222222';
+            chart.data.datasets[0].pointHoverBackgroundColor = '#222222';
+            chart.data.datasets[0].pointHoverBorderColor = '#222222';
         }
+
+        chart.update();
 
         $('#priceDiff').text(diff + ' (' + diffPercent + '%)');
     });
@@ -267,12 +290,9 @@ function initChart() {
                 data: [],
                 fill: false,
                 lineTension: 0,
-                //TODO: borderColor: colour,
                 borderWidth: 1.5,
                 pointBorderColor: 'rgba(0, 0, 0, 0)',
                 pointBackgroundColor: 'rgba(0, 0, 0, 0)',
-                //TODO: pointHoverBackgroundColor: colour,
-                //TODO: pointHoverBorderColor: colour
             }]
         },
         options: {
@@ -306,6 +326,8 @@ function initChart() {
     return chart;
 }
 
+// TODO: if 1D is selected, reload chart every min
+// TODO: 1D charts are still a little weird
 function loadChart(symbol, period, chart) {
     $.getJSON(IEX + '/stock/' + symbol + '/chart/' + period, function(json) {
         let labels = [];
@@ -319,111 +341,16 @@ function loadChart(symbol, period, chart) {
         chart.data.labels = labels;
         chart.data.datasets[0].data = data;
         chart.update();
+
+        $('.wrapper-chart').show();
     });
+
+    if (period == '1D') {
+        //TODO: update
+    }
 }
 
  /*
-
-// rgba colour representing positive
-const POSITIVE = 'rgba(25, 190, 135, 255)';
-
-// rgba colour representing negative
-const NEGATIVE = 'rgba(247, 33, 33, 255)';
-
-// rgba colour representing zero
-const ZERO = 'rgba(34, 34, 34, 255)'
-
-// js enum for determining months from index
-const MONTHS = Object.freeze({
-    0: 'Jan',
-    1: 'Feb',
-    2: 'Mar',
-    3: 'Apr',
-    4: 'May',
-    5: 'Jun',
-    6: 'Jul',
-    7: 'Aug',
-    8: 'Sep',
-    9: 'Oct',
-    10: 'Nov',
-    11: 'Dec'
-});
-
-$(document).ready(function() {
-    return;
-    //let symbols = getSymbols();
-    //let chart = initChart();
-
-    //TODO: move getting symbols to server, might not have to limit results then
-    $('#search').autocomplete({
-        source: function (request, response) {
-            var results = $.ui.autocomplete.filter(symbols, request.term);
-
-            response(results.slice(0, 20));
-        }, 
-        minLength: 0,
-        messages: {
-            noResults: '',
-            results: function() {}
-        },
-        select: function(event, ui) {
-            let symbol = ui.item.value;
-
-            getPrice(symbol);
-            getChange(symbol);
-            getStats(symbol);
-
-            updateChart(chart, symbol, '1D');
-
-            $(document).on('click', '.time-period-button:not(.selected)', function() {
-                updateChart(chart, symbol, $(this).text());
-
-                $('.time-period-button.selected').removeClass('selected');
-                $(this).addClass('selected');
-            });
-        }
-    });
-});
-}
-
-//TODO: asynchronous
-function getChartData(symbol, period) {
-    const URL = IEX + '/stock/' + symbol + '/chart/' + period;
-
-    let chartData = {
-        labels: [],
-        data: []
-    };
-
-    $.ajax({
-        type: 'get',
-        url: URL,
-        dataType: 'json',
-        async: false,
-        success: function(json) {
-            let labels = [];
-            let data = [];
-
-            //TODO: possibly add year for periods >= 1y
-            json.forEach(function(obj) {
-                let date = new Date(obj.date);
-                let label = MONTHS[date.getMonth()] + ' ' + date.getDate();
-
-                labels.push(label);
-                data.push(obj.open);
-            });
-
-            chartData.labels = labels;
-            chartData.data = data;
-        },
-        fail: function(error) {
-            console.log(error);
-        }
-    });
-
-    return chartData;
-}
-
 function updateChart(chart, symbol, period) {
     let chartData = getChartData(symbol, period);
 

@@ -19,6 +19,8 @@ app.use(express.static('.'));
 // server config file
 let config = require('./config');
 
+console.log('Connecting to database...');
+
 let db = mysql.createConnection({
     host: config.db.host,
     user: config.db.username,
@@ -32,6 +34,8 @@ db.connect(function(err) {
     console.log('Established connection to database');
 });
 
+console.log('Initializing mailer...');
+
 // smtp transporter
 let transporter = mailer.createTransport({
     service: config.mailer.service,
@@ -41,7 +45,11 @@ let transporter = mailer.createTransport({
     }
 });
 
+console.log('Mailer successfully initialized');
+
 let stocks = [];
+
+console.log('Loading stock information...')
 
 request({
     url: 'https://api.iextrading.com/1.0/ref-data/symbols',
@@ -51,6 +59,7 @@ request({
 
     if (res.statusCode == 200) {    
         stocks = json;
+        console.log('Stock information successfully loaded');
     }
 });
 
