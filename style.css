@@ -253,7 +253,7 @@ form {
 
 .wrapper-chart {
     width: 90%;
-    height: 400px;
+    height: 300px;
     margin: auto;
     position: relative;
 }
@@ -267,9 +267,26 @@ form {
 .wrapper-periods {
     display: flex;
     justify-content: center;
+    margin-top: 20px;
 }
 
 .wrapper-periods>button {
-    width: 50px;
+    width: 40px;
     height: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    border: none;
+    font-size: 14px;
+}
+
+.wrapper-periods>button:focus {
+    outline: none;
+}
+
+.wrapper-periods>button:hover {
+    font-weight: 700;
+}
+
+.active-period {
+    font-weight: 700;
 }

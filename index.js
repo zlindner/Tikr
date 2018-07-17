@@ -13,6 +13,7 @@ $(document).ready(function() {
             $('.wrapper-' + id).show();
 
             if (id == 'stocks') {
+                $('.wrapper-stocks').hide();
                 $('.wrapper-search').show();
             }
         }
@@ -26,8 +27,6 @@ $(document).ready(function() {
         e.preventDefault();
         login();
     }); 
-
-    //TODO: this could probably be cleaned up
 
     $('.form-login input[name="create"]').click(function() {
         $('.form-login').hide();
@@ -79,14 +78,18 @@ $(document).ready(function() {
         this.menu.element.outerWidth(this.element.outerWidth() - 1);
     }
 
+    let symbol;
     let chart = initChart();
 
     $('#stockInput').autocomplete({
         source: '/search',
         select: function(event, ui) {
+            $('.wrapper-stocks').show();
             $('#stockInput').val('');
 
-            loadStock(ui.item.value, chart);
+            symbol = ui.item.value;
+
+            loadStock(symbol, chart);
 
             return false;
         },
@@ -107,6 +110,13 @@ $(document).ready(function() {
             noResults: '',
             results: function() {}
         }
+    });
+
+    $('.wrapper-periods>button').click(function() {
+        $('.active-period').removeClass('active-period');
+        $(this).addClass('active-period');
+
+        loadChart(symbol, $(this).text(), chart);
     });
 });
 
@@ -233,13 +243,7 @@ function loadStock(symbol, chart) {
         }, 60000);
     });
 
-    loadChart(symbol, '1M', chart);
-
-    chart.options.tooltips.callbacks = {
-        label: function(items) {
-            return symbol + ': ' + items.yLabel;
-        }
-    }
+    loadChart(symbol, '1D', chart);
 }
 
 function getPrice(symbol, prev, update, chart) {
@@ -334,19 +338,27 @@ function initChart() {
 }
 
 // TODO: if 1D is selected, reload chart every min
-// TODO: 1D charts are still a little weird
 function loadChart(symbol, period, chart) {
     $.getJSON(IEX + '/stock/' + symbol + '/chart/' + period, function(json) {
         let labels = [];
         let data = [];
 
         json.forEach(function(obj) {
-            labels.push(obj.label);
-            data.push(obj.open);
+            if (obj.open) {
+                labels.push(obj.label);
+                data.push(obj.open);
+            }
         });
 
         chart.data.labels = labels;
         chart.data.datasets[0].data = data;
+
+        chart.options.tooltips.callbacks = {
+            label: function(items) {
+                return symbol + ': ' + (items.yLabel).toFixed(2);
+            }
+        }
+
         chart.update();
 
         $('.wrapper-chart').show();
