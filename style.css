@@ -43,7 +43,7 @@ form {
     -webkit-border-radius: 5px;
     border-radius: 5px;
     box-shadow: 0px 1px 10px 2px rgba(204, 204, 204, .25);
-    overflow: hidden;
+    overflow: auto;
 }
 
 /*
@@ -222,7 +222,6 @@ form {
 
 .wrapper-stocks {
     width: 60%;
-    height: 1000px;
     top: 80px;
 }
 
@@ -275,6 +274,7 @@ form {
     height: 20px;
     margin-left: 10px;
     margin-right: 10px;
+    margin-bottom: 40px;
     border: none;
     font-size: 14px;
 }
@@ -289,4 +289,33 @@ form {
 
 .active-period {
     font-weight: 700;
+}
+
+.wrapper-company {
+    width: 60%;
+    margin-top: 120px;
+}
+
+.wrapper-company>h1 {
+    font-size: 18px !important;
+    margin-top: 40px;
+    margin-left: 40px;
+}
+
+.wrapper-company h1 {
+    font-size: 14px;
+    margin: none;
+}
+
+.companyLeft {
+    float: left;
+    width: calc(50% - 40px);
+    margin-left: 40px;
+    font-size: 14px;
+}
+
+.companyRight {
+    float: right;
+    width: calc(50% - 40px);
+    margin-right: 40px;
 }

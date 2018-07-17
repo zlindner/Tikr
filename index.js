@@ -1,5 +1,7 @@
 'use strict'
 
+//TODO: add ability to minimize certain wrappers
+
 $(document).ready(function() {
     /*
      * sidebar
@@ -85,6 +87,8 @@ $(document).ready(function() {
         source: '/search',
         select: function(event, ui) {
             $('.wrapper-stocks').show();
+            $('.wrapper-company').show();
+
             $('#stockInput').val('');
 
             symbol = ui.item.value;
@@ -244,6 +248,8 @@ function loadStock(symbol, chart) {
     });
 
     loadChart(symbol, '1D', chart);
+
+    loadCompany(symbol);
 }
 
 function getPrice(symbol, prev, update, chart) {
@@ -367,4 +373,44 @@ function loadChart(symbol, period, chart) {
     if (period == '1D') {
         //TODO: update
     }
+}
+
+function loadCompany(symbol) {
+    $.getJSON(IEX + '/stock/' + symbol + '/company', function(json) {
+        if (json.description) {
+            $('#companyDesc').text(json.description);
+        } else {
+            $('#companyDesc').text('...');
+        }
+
+        if (json.exchange) {
+            $('#companyExchange').text(json.exchange);
+        } else {
+            $('#companyExchange').text('...');
+        }
+
+        if (json.industry) {
+            $('#companyIndustry').text(json.industry);
+        } else {
+            $('#companyIndustry').text('...');
+        }
+
+        if (json.sector) {
+            $('#companySector').text(json.sector);
+        } else {
+            $('#companySector').text('...');
+        }
+
+        if (json.CEO) {
+            $('#companyCEO').text(json.CEO);
+        } else {
+            $('#companyCEO').text('...');
+        }
+
+        if (json.website) {
+            $('#companyWebsite').text(json.website).attr('href', json.website);
+        } else {
+            $('#companyWebsite').text('...');
+        }
+    });
 }
