@@ -318,4 +318,5 @@ form {
     float: right;
     width: calc(50% - 40px);
     margin-right: 40px;
+    font-size: 14px;
 }

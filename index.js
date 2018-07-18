@@ -117,10 +117,26 @@ $(document).ready(function() {
     });
 
     $('.wrapper-periods>button').click(function() {
+        if ($(this).hasClass('active-period')) {
+            return;
+        }
+
         $('.active-period').removeClass('active-period');
         $(this).addClass('active-period');
 
-        loadChart(symbol, $(this).text(), chart);
+        if ($(this).text() == '1D') {
+            loadChart(symbol, '1D', chart);
+
+            chartTimer = setInterval(function() {
+                loadChart(symbol, '1D', chart);
+            }, 60000);
+        } else {
+            if (chartTimer) {
+                clearInterval(chartTimer);
+            }
+
+            loadChart(symbol, $(this).text(), chart);
+        }
     });
 });
 
@@ -233,6 +249,10 @@ function loadStock(symbol, chart) {
         clearInterval(priceTimer);
     }
 
+    if (chartTimer) {
+        clearInterval(chartTimer);
+    }
+
     $.getJSON(IEX + '/stock/' + symbol + '/stats', function(stats) {
         $('#stockName').text(stats.companyName);
         $('#stockSymbol').text('(' + stats.symbol + ')');
@@ -248,6 +268,10 @@ function loadStock(symbol, chart) {
     });
 
     loadChart(symbol, '1D', chart);
+
+    chartTimer = setInterval(function() {
+        loadChart(symbol, '1D', chart);
+    }, 60000);
 
     loadCompany(symbol);
 }
@@ -343,7 +367,6 @@ function initChart() {
     return chart;
 }
 
-// TODO: if 1D is selected, reload chart every min
 function loadChart(symbol, period, chart) {
     $.getJSON(IEX + '/stock/' + symbol + '/chart/' + period, function(json) {
         let labels = [];
@@ -369,10 +392,6 @@ function loadChart(symbol, period, chart) {
 
         $('.wrapper-chart').show();
     });
-
-    if (period == '1D') {
-        //TODO: update
-    }
 }
 
 function loadCompany(symbol) {
