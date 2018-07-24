@@ -24,10 +24,13 @@
 
         <ul>
             <li>
-                <a href="index.html">Home</a>
+                <a href="#" id="home">Home</a>
             </li>
             <li>
                 <a href="#" id="login">Login</a>
+            </li>
+            <li>
+                <a href="#" id="account" hidden>My Account</a>
             </li>
             <li>
                 <a href="#" id="stocks">Stocks</a>
@@ -42,7 +45,7 @@
 
         <form class="form-login">
             <input type="text" name="email" placeholder="Email" class="form-input">
-            <input type="text" name="password" placeholder="Password" class="form-input form-password">
+            <input type="text" name="password" placeholder="Password" class="form-input form-password" autocomplete="off">
             <input type="submit" name="login" value="Login" class="form-submit">
             <input type="button" name="create" value="Create an account" class="form-textbutton" tabindex="-1">
             <input type="button" name="forgot" value="Fogot your password?" class="form-textbutton" tabindex="-1">
@@ -50,8 +53,8 @@
 
         <form class="form-create-account" hidden>
             <input type="text" name="email" placeholder="Email" class="form-input">
-            <input type="text" name="password" placeholder="Password" class="form-input form-password">
-            <input type="text" name="password2" placeholder="Confirm Password" class="form-input form-password">
+            <input type="text" name="password" placeholder="Password" class="form-input form-password" autocomplete="off">
+            <input type="text" name="password2" placeholder="Confirm Password" class="form-input form-password" autocomplete="off">
             <input type="submit" name="create" value="Create Account" class="form-submit">
             <input type="button" name="login" value="Already have an account?" class="form-textbutton" tabindex="-1">
         </form>
@@ -61,6 +64,33 @@
             <input type="submit" name="reset" value="Reset Password" class="form-submit">
             <input type="button" name="login" value="Back to login" class="form-textbutton" tabindex="-1">
         </form>
+    </div>
+
+    <div class="wrapper-account wrapper">
+        <h1>My Account</h1>
+
+        <p id="accountBalance">Account Balance: </p>
+
+        <button id="logout">Logout</button>
+    </div>
+
+    <div class="wrapper-transactions wrapper">
+        <h1>My Transactions</h1>
+
+        <table id="transactions">
+            <thead>
+                <tr>
+                    <th align="left">Time</th>
+                    <th align="left">Type</th>
+                    <th align="left">Symbol</th>
+                    <th align="left">Price</th>
+                    <th align="left">Shares</th>
+                    <th align="left">Total</th>
+                </tr>
+            </thead>
+
+            <tbody></tbody>
+        </table>
     </div>
 
     <div class="wrapper-search wrapper">
@@ -89,38 +119,46 @@
         </div>
     </div>
 
-    <div class="wrapper-company wrapper">
-        <h1>Company</h1>
-
-        <div class="companyLeft">
+    <div style="display: flex;">
+        <div class="wrapper-company wrapper">
+            <h1>About</h1>
+    
             <p id="companyDesc"></p>
             <br>
-
-            <div style="float: left; width: calc(50% - 20px);">
+    
+            <div class="left-col">
                 <h1>EXCHANGE</h1>
-                <p id="companyExchange"></p>
+                <p id="companyExchange">...</p>
                 <br>
                 <h1>SECTOR</h1>
-                <p id="companySector"></p>
+                <p id="companySector">...</p>
                 <br>
                 <h1>WEBSITE</h1>
-                <p><a id="companyWebsite" target="_blank"></a></p>
-                <br>
+                <p><a id="companyWebsite" target="_blank">...</a></p>
             </div>
-
-            <div style="float: right; width: calc(50% - 20px); margin-right: 40px;">
+    
+            <div class="right-col">
                 <h1>INDUSTRY</h1>
-                <p id="companyIndustry"></p>
+                <p id="companyIndustry">...</p>
                 <br>
                 <h1>CEO</h1>
-                <p id="companyCEO"></p>
+                <p id="companyCEO">...</p>
             </div>
         </div>
+    
+        <div class="wrapper-buy wrapper">
+            <h1 id="buyHeader">Buy Shares</h1>
 
-        <div class="companyRight">
+            <h1 id="currentBalance">Current Balance: 1000</h1>
 
+            <form class="form-buy">
+                <label>Shares: </label>
+                <input id="numShares" type="number" min="1">
+                <br>
+                <input type="submit" value="Buy">
+            </form>
+            
         </div>
-       
     </div>
 
     <script src="index.js"></script>

@@ -2,7 +2,19 @@
 
 //TODO: add ability to minimize certain wrappers
 
+let account = {
+    logged_in: false,
+    balance: 0,
+    id: 0
+};
+
+// determines if only search bar should be displayed
+let searched = false;
+
 $(document).ready(function() {
+    $('.wrapper-account').show();
+    $('.wrapper-transactions').show();
+
     /*
      * sidebar
      */
@@ -10,13 +22,24 @@ $(document).ready(function() {
     $(document).on('click', '.sidebar>ul>li>a', function() {
         let id = $(this).attr('id');
 
-        if (id) {
-            $('.wrapper').hide();
-            $('.wrapper-' + id).show();
+        $('.wrapper').hide();
 
-            if (id == 'stocks') {
-                $('.wrapper-stocks').hide();
-                $('.wrapper-search').show();
+        if (id == 'home') {
+            $('.wrapper-home').show();
+        } else if (id == 'login') {
+            $('.wrapper-login').show();
+        } else if (id == 'account') {
+            $('.wrapper-account').show();
+            $('.wrapper-transactions').show();
+            loadAccount();
+            loadTransactions();
+        } else if (id == 'stocks') {
+            $('.wrapper-search').show();
+
+            if (searched) {
+                $('.wrapper-stocks').show();
+                $('.wrapper-company').show();
+                $('.wrapper-buy').show();
             }
         }
     });
@@ -73,6 +96,19 @@ $(document).ready(function() {
     });
 
     /*
+     * account
+     */
+    
+    $('#logout').click(function() {
+        account.logged_in = false;
+
+        $('.wrapper-account').hide();
+
+        $('#account').hide();
+        $('#login').show();
+    });
+
+    /*
      * stocks
      */
 
@@ -88,12 +124,16 @@ $(document).ready(function() {
         select: function(event, ui) {
             $('.wrapper-stocks').show();
             $('.wrapper-company').show();
+            $('.wrapper-buy').show();
 
             $('#stockInput').val('');
+            
+            searched = true;
 
             symbol = ui.item.value;
+            let period = $('.active-period').text();
 
-            loadStock(symbol, chart);
+            loadStock(symbol, chart, period);
 
             return false;
         },
@@ -138,6 +178,12 @@ $(document).ready(function() {
             loadChart(symbol, $(this).text(), chart);
         }
     });
+
+    $('.form-buy').submit(function(e) {
+        e.preventDefault();
+
+        buyShares();
+    });
 });
 
 /*
@@ -171,12 +217,19 @@ function login() {
     
             $('.form-error').hide();
 
-            console.log(data);
+            account.logged_in = true;
+            account.balance = data.balance;
+            account.id = data.id;
 
-            // login
-            window.location.replace('index.html');
+            if (!data.verified) {
+                // TODO: if not verified add verification banner
+            }
 
-            // TODO: if not verified add verification banner
+            $('.wrapper-login').hide();
+            $('.form-login').trigger('reset');
+
+            $('#login').hide();
+            $('#account').show();
         },
         fail: function(error) {
             console.log(error);
@@ -232,6 +285,40 @@ function validateEmail(email) {
 }
 
 /*
+ * account
+ */
+
+ //TODO:
+function loadAccount() {
+    $('#accountBalance').text('Account Balance: ' + account.balance);
+}
+
+//TODO:
+function loadTransactions() {
+    $.ajax({
+        type: 'get',
+        url: '/transactions',
+        dataType: 'json',
+        data: {
+            id: account.id
+        },
+        success: function(data) {
+            for (let i = 0; i < data.length; i++) {
+                let t = data[i];
+                let type = t.type == 0 ? 'Purchase' : 'Sale';
+                let total = t.price * t.shares;
+                let datetime = new Date(t.time).toISOString().slice(0, 19).replace('T', ' ');
+
+                $('#transactions>tbody').append('<tr><td>' + datetime + '</td><td>' + type + '</td><td>' + t.symbol + '</td><td>' + t.price + '</td><td>' + t.shares + '</td><td>' + total + '</td></tr>');
+            }
+        },
+        error: function(error) {
+            console.log(error);
+        }
+    });
+}
+
+/*
  * stocks
  */ 
 
@@ -244,7 +331,7 @@ let priceTimer;
 // updates stock chart every min (for 1D only)
 let chartTimer;
 
-function loadStock(symbol, chart) {
+function loadStock(symbol, chart, period) {
     if (priceTimer) {
         clearInterval(priceTimer);
     }
@@ -267,11 +354,13 @@ function loadStock(symbol, chart) {
         }, 60000);
     });
 
-    loadChart(symbol, '1D', chart);
+    loadChart(symbol, period, chart);
 
-    chartTimer = setInterval(function() {
-        loadChart(symbol, '1D', chart);
-    }, 60000);
+    if (period == '1D') {
+        chartTimer = setInterval(function() {
+            loadChart(symbol, '1D', chart);
+        }, 60000);
+    }
 
     loadCompany(symbol);
 }
@@ -398,38 +487,64 @@ function loadCompany(symbol) {
     $.getJSON(IEX + '/stock/' + symbol + '/company', function(json) {
         if (json.description) {
             $('#companyDesc').text(json.description);
-        } else {
-            $('#companyDesc').text('...');
         }
 
         if (json.exchange) {
             $('#companyExchange').text(json.exchange);
-        } else {
-            $('#companyExchange').text('...');
-        }
+        } 
 
         if (json.industry) {
             $('#companyIndustry').text(json.industry);
-        } else {
-            $('#companyIndustry').text('...');
-        }
+        } 
 
         if (json.sector) {
             $('#companySector').text(json.sector);
-        } else {
-            $('#companySector').text('...');
-        }
+        } 
 
         if (json.CEO) {
             $('#companyCEO').text(json.CEO);
-        } else {
-            $('#companyCEO').text('...');
         }
 
         if (json.website) {
             $('#companyWebsite').text(json.website).attr('href', json.website);
-        } else {
-            $('#companyWebsite').text('...');
-        }
+        } 
     });
+}
+
+function buyShares() {
+    let shares = $('.form-buy>input[type="number"]').val();
+
+    if (shares) {
+        let price = parseFloat($('#stockPrice').text());
+        let cost = price * shares;
+
+        if (account.balance >= cost) {
+            account.balance -= cost;
+            $('#currentBalance').text('Current Balance: ' + account.balance);
+
+            let symbol = $('#stockSymbol').text().slice(1, -1);
+            let datetime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+            $.ajax({
+                type: 'get',
+                url: '/buy',
+                dataType: 'json',
+                data: {
+                    id: account.id,
+                    symbol: symbol,
+                    price: price,
+                    shares: shares,
+                    time: datetime
+                },
+                success: function(data) {
+                    
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        } else {
+            // invalid purchase
+        }
+    }
 }

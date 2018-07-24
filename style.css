@@ -1,11 +1,4 @@
 /*
- * STUFF
- * pink: #b921c9
- * purp/blue: #7489dc
- * lblue: #73d8dc
- */
-
-/*
  * global
  */
 
@@ -30,6 +23,10 @@ li>a {
 
 form {
     text-align: center;
+}
+
+label {
+    font-size: 14px;
 }
 
 .wrapper {
@@ -164,6 +161,75 @@ form {
 }
 
 /*
+ * account
+ */
+.wrapper-account {
+    width: 60%;
+    height: 200px;
+    top: 40px;
+    padding: 40px;
+}
+
+.wrapper-account>h1 {
+    font-size: 24px;
+}
+
+#logout {
+    width: 300px;
+    height: 40px;
+    margin-top: 40px;
+    font-size: 18px;
+    color: #006fe8;
+    border: 1px solid #006fe8;
+    background: none;
+    border-radius: .125rem;
+}
+
+#logout:focus {
+    outline-color: #bfbfbf;
+}
+
+.wrapper-transactions {
+    width: 60%;
+    height: 500px;
+    padding: 40px;
+    top: 80px;
+}
+
+.wrapper-transactions>h1 {
+    font-size: 24px;
+}
+
+#transactions {
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 40px;
+    border-collapse: collapse;
+    border-spacing: 100px;
+}
+
+#transactions thead tr {
+    border-bottom: 2px solid black;
+}
+
+#transactions thead th {
+    padding-bottom: 10px;
+}
+
+#transactions tbody tr {
+    border-bottom: 1px solid black;
+}
+
+#transactions td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#transactions tr {
+    padding-top: 10px;
+}
+
+/*
  * stocks
  */
 
@@ -292,14 +358,10 @@ form {
 }
 
 .wrapper-company {
-    width: 60%;
+    flex: 0 0 30%;
     margin-top: 120px;
-}
-
-.wrapper-company>h1 {
-    font-size: 18px !important;
-    margin-top: 40px;
-    margin-left: 40px;
+    margin-left: 20%;
+    padding: 40px;
 }
 
 .wrapper-company h1 {
@@ -307,16 +369,38 @@ form {
     margin: none;
 }
 
-.companyLeft {
-    float: left;
-    width: calc(50% - 40px);
-    margin-left: 40px;
-    font-size: 14px;
+.wrapper-company>h1 {
+    font-size: 18px;
 }
 
-.companyRight {
+.left-col {
+    width: 50%;
+    display: inline-block;
+}
+
+.right-col {
+    width: 50%;
     float: right;
-    width: calc(50% - 40px);
-    margin-right: 40px;
+}
+
+.wrapper-buy {
+    margin-top: 120px;
+    margin-left: 40px;
+    margin-right: 20%;
+    flex: 1;
+    padding: 40px;
+}
+
+.wrapper-buy>h1 {
     font-size: 14px;
+    font-weight: 400;
+}
+
+#buyHeader {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#numShares {
+    width: 40px;
 }

@@ -58,7 +58,7 @@ app.get('/login', function(req, res) {
     let password = req.query.password;
 
     // casts binary hash to string
-    pool.query('SELECT CAST(password as CHAR) FROM account WHERE email="' + email + '";', function(err, result) {
+    pool.query('SELECT CAST(password as CHAR) FROM account WHERE email="' + email + '"', function(err, result) {
         if (err) throw err;
 
         if (result.length == 0) {
@@ -73,7 +73,14 @@ app.get('/login', function(req, res) {
 
                 if (match) {
                     // password was a match
-                    return res.json({status: 'success'});
+                    pool.query('SELECT * FROM account WHERE email="' + email + '"', function(err, account) {       
+                        return res.json({
+                            status: 'success',
+                            balance: account[0].balance,
+                            id: account[0].account_id,
+                            verified: account[0].verified
+                        });
+                    });
                 } else {
                     // password wasn't a match
                     return res.json({status: 'fail'});
@@ -87,7 +94,7 @@ app.get('/createAccount', function(req, res) {
     let email = req.query.email;
     let password = req.query.password;
 
-    pool.query('SELECT * FROM account WHERE email="' + email + '";', function(err, result) {
+    pool.query('SELECT * FROM account WHERE email="' + email + '"', function(err, result) {
         if (err) throw err;
 
         // account doesn't already exist with that email
@@ -99,7 +106,7 @@ app.get('/createAccount', function(req, res) {
 
                 console.log(id);
         
-                db.query('INSERT INTO account (email, password, id) VALUES("' + email + '", "' + hash + '", "' + id + '")', function(err, result) {
+                pool.query('INSERT INTO account (email, password, verify_id) VALUES("' + email + '", "' + hash + '", "' + id + '")', function(err, result) {
                     if (err) throw err;
 
                     // email verification
@@ -132,7 +139,7 @@ function sendEmail(email, id, host) {
 app.get('/verify', function(req, res) {
     let linkID = req.query.id;
 
-    pool.query('SELECT * FROM account WHERE id="' + linkID + '";', function(err, result) {
+    pool.query('SELECT * FROM account WHERE verify_id="' + linkID + '"', function(err, result) {
         if (err) throw err;
 
         if (result.length == 0) {
@@ -144,7 +151,7 @@ app.get('/verify', function(req, res) {
         if (userID == linkID) {
             let email = result[0].email;
 
-            db.query('UPDATE account SET verified="1", id=NULL WHERE email="' + email + '";', function(err, result) {
+            pool.query('UPDATE account SET verified="1", verify_id=NULL WHERE email="' + email + '"', function(err, result) {
                 if (err) throw err;
 
                 return res.end('<h1>Email has successfully been verified</h1>');
@@ -177,6 +184,35 @@ app.get('/search', function(req, res) {
     });
 
     res.send(filtered);
+});
+
+app.get('/buy', function(req, res) {
+    let id = req.query.id;
+    let symbol = req.query.symbol;
+    let price = req.query.price;
+    let shares = req.query.shares;
+    let time = req.query.time;
+    let type = 0; // type is 0 for buying shares
+    
+    pool.query('INSERT INTO transaction VALUES ("' + symbol + '", "' + price + '", "' + time + '", "' + type + '", "' + shares + '", "' + id + '")', function(err, result) {
+        if (err) throw err;
+
+        let cost = price * shares;
+
+        //TODO: update account balance
+
+        res.json({status: 'success'});
+    });
+});
+
+app.get('/transactions', function(req, res) {
+    let id = req.query.id;
+
+    pool.query('SELECT * FROM transaction WHERE account_id="' + id + '"', function(err, result) {
+        if (err) throw err;
+
+        res.send(result);
+    });
 });
 
 // graceful shutdown
